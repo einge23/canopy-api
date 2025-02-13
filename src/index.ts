@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Hono } from "hono";
 import "dotenv/config";
 import userRoutes from "./routes/user-routes.js";
+import eventRoutes from "./routes/event-routes.js";
 
 const app = new Hono();
 
@@ -13,6 +14,7 @@ if (!process.env.DATABASE_PUBLIC_URL) {
 export const db = drizzle(process.env.DATABASE_PUBLIC_URL);
 
 app.route("/users", userRoutes);
+app.route("/events", eventRoutes);
 
 const port = 3000;
 console.log(`Server is running`);

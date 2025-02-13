@@ -1,4 +1,3 @@
-//// filepath: /C:/Users/einge/source/repos/canopy/canopy-api/src/routes/user-routes.ts
 import { Hono } from "hono";
 import { getUserById, createUser } from "../services/user-services.js";
 import type { UserDTO } from "../db/schema.js";
