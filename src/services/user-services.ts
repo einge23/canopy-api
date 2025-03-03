@@ -1,7 +1,7 @@
-import { db } from "../index.js";
 import { usersTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "../util/password-hash.js";
+import { db } from "../index.js";
 
 export async function getUserById(id: number) {
     const [user] = await db
