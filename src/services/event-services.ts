@@ -56,7 +56,7 @@ export async function getUserEvents(userId: string) {
     return events;
 }
 
-export async function getEventByDate(userId: string, date: Date) {
+export async function getEventsByDate(userId: string, date: Date) {
     // Create the start and end of the day
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
