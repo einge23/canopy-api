@@ -55,3 +55,26 @@ export async function getUserEvents(userId: string) {
         .where(eq(eventsTable.user_id, userId));
     return events;
 }
+
+export async function getEventByDate(userId: string, date: Date) {
+    // Create the start and end of the day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Query to filter events within the day
+    const events = await db
+        .select()
+        .from(eventsTable)
+        .where(
+            and(
+                eq(eventsTable.user_id, userId),
+                gte(eventsTable.start, startOfDay),
+                lte(eventsTable.start, endOfDay)
+            )
+        );
+
+    return events;
+}
