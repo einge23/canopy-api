@@ -8,7 +8,7 @@ import {
     varchar,
 } from "drizzle-orm/pg-core";
 export const usersTable = pgTable("users", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    id: varchar({ length: 255 }).primaryKey(),
     username: varchar({ length: 255 }).notNull(),
     email: varchar({ length: 255 }).notNull().unique(),
     password: varchar({ length: 255 }).notNull(),
@@ -27,7 +27,7 @@ export const eventsTable = pgTable("events", {
     end: timestamp({ withTimezone: true }).notNull(),
     location: varchar({ length: 255 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
-    user_id: integer()
+    user_id: varchar({ length: 255 })
         .notNull()
         .references(() => usersTable.id, { onDelete: "cascade" }),
     color: varchar({ length: 8 }).notNull(),

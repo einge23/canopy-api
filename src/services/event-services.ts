@@ -16,7 +16,7 @@ export async function createEvent(event: CreateEventRequest) {
     return result[0];
 }
 
-export async function getUserEvents(userId: number) {
+export async function getUserEvents(userId: string) {
     const events = await db
         .select()
         .from(eventsTable)

@@ -31,7 +31,7 @@ eventRoutes.post("/create", async (c) => {
 
 eventRoutes.get("/user/:id", async (c) => {
     try {
-        const id = Number(c.req.param("id"));
+        const id = c.req.param("id");
         const events = await getUserEvents(id);
 
         if (!events) return c.json({ error: "Error getting user events" }, 404);

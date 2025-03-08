@@ -4,7 +4,7 @@ export interface CreateEventRequest {
     end: Date;
     location: string;
     description: string;
-    user_id: number;
+    user_id: string;
     color: string;
     recurrence_rule?: string;
 }
