@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { CreateEventRequest } from "../types/create-event-request.js";
-import { createEvent, getUserEvents } from "../services/event-services.js";
+import { createEvent, getEventsByDate, getUserEvents } from "../services/event-services.js";
 import type { EventDTO } from "../db/schema.js";
 
 const eventRoutes = new Hono();
@@ -46,5 +46,23 @@ eventRoutes.get("/user/:id", async (c) => {
         return c.json({ error: error.message }, 500);
     }
 });
+
+eventRoutes.get("/:user_id/:date", async (c) => {
+    try {
+        const { user_id, date } = c.req.param();
+        const events = await getEventsByDate(user_id, new Date(date));
+
+        if (!events) return c.json({ error: "Error getting user events" }, 404);
+
+        const safeEvents = events.map((event) => {
+            const eventDto: EventDTO = (({ deleted, ...rest }) => rest)(event);
+            return eventDto;
+        });
+
+        return c.json(safeEvents);
+    } catch (error: any) {
+        return c.json({ error: error.message }, 500);
+    }
+})
 
 export default eventRoutes;
