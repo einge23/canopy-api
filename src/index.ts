@@ -2,7 +2,6 @@ import { serve } from "@hono/node-server";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Hono } from "hono";
 import "dotenv/config";
-import userRoutes from "./routes/user-routes.js";
 import eventRoutes from "./routes/event-routes.js";
 import { logger } from "hono/logger";
 
@@ -25,7 +24,6 @@ app.use("*", async (c, next) => {
     await next();
 });
 
-app.route("/users", userRoutes);
 app.route("/events", eventRoutes);
 
 const port = 3000;

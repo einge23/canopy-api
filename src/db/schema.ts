@@ -7,18 +7,6 @@ import {
     timestamp,
     varchar,
 } from "drizzle-orm/pg-core";
-export const usersTable = pgTable("users", {
-    id: varchar({ length: 255 }).primaryKey(),
-    username: varchar({ length: 255 }).notNull(),
-    email: varchar({ length: 255 }).notNull().unique(),
-    password: varchar({ length: 255 }).notNull(),
-});
-
-export type User = InferSelectModel<typeof usersTable>;
-
-export type NewUser = InferInsertModel<typeof usersTable>;
-
-export type UserDTO = Omit<User, "password">;
 
 export const eventsTable = pgTable("events", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -28,8 +16,7 @@ export const eventsTable = pgTable("events", {
     location: varchar({ length: 255 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
     user_id: varchar({ length: 255 })
-        .notNull()
-        .references(() => usersTable.id, { onDelete: "cascade" }),
+        .notNull(),
     color: varchar({ length: 8 }).notNull(),
     recurrence_rule: varchar({ length: 255 }),
     deleted: boolean().notNull().default(false),
