@@ -27,7 +27,7 @@ app.use("*", async (c, next) => {
 app.route("/events", eventRoutes);
 
 const port = 3000;
-console.log(`Server is running`);
+console.log(`Server is running on port ${port}`);
 
 serve({
     fetch: app.fetch,
