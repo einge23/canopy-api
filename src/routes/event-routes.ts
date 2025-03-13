@@ -60,20 +60,23 @@ eventRoutes.put("/edit", clerkAuth, async (c) => {
     try {
         const request = (await c.req.json()) as EventDTO;
 
-        // Use c.var instead of c.get for type-safe access
-
         // Check if all required fields are present
         if (!request || !request.id || !request.user_id) {
             return c.json({ error: "Missing required fields" }, 400);
         }
 
-        // Verify user is editing their own event
-        // Get user ID from session
-
         const updatedEvent = await editEvent(request);
         return c.json(updatedEvent);
     } catch (error) {
-        return c.json({ error: "Invalid request body" }, 400);
+        console.error("Error updating event:", error);
+        return c.json(
+            {
+                error: "Failed to update event",
+                details:
+                    error instanceof Error ? error.message : "Unknown error",
+            },
+            400
+        );
     }
 });
 
