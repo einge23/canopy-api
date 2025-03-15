@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { CreateEventRequest } from "../types/create-event-request.js";
 import {
     createEvent,
+    deleteEvent,
     editEvent,
     getEventsByDate,
     getUserEvents,
@@ -98,6 +99,20 @@ eventRoutes.get("/:user_id/:date", clerkAuth, async (c) => {
         });
 
         return c.json(safeEvents);
+    } catch (error: any) {
+        return c.json({ error: error.message }, 500);
+    }
+});
+
+eventRoutes.delete("/:id", clerkAuth, async (c) => {
+    try {
+        const id = c.req.param("id");
+
+        if (!id) return c.json({ error: "Missing event ID" }, 400);
+
+        const deletedEvent = await deleteEvent(parseInt(id));
+
+        return c.json(deletedEvent);
     } catch (error: any) {
         return c.json({ error: error.message }, 500);
     }
