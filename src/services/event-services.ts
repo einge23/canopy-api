@@ -16,6 +16,7 @@ export async function createEvent(event: CreateEventRequest) {
         .where(
             and(
                 eq(eventsTable.user_id, eventWithDates.user_id),
+                eq(eventsTable.deleted, false), // Only check non-deleted events
                 or(
                     and(
                         gte(eventsTable.start, eventWithDates.start),
@@ -72,6 +73,7 @@ export async function editEvent(event: EventDTO) {
                 eq(eventsTable.user_id, eventWithDates.user_id),
                 // Exclude current event
                 ne(eventsTable.id, eventWithDates.id),
+                eq(eventsTable.deleted, false),
                 or(
                     and(
                         gte(eventsTable.start, eventWithDates.start),
@@ -108,7 +110,12 @@ export async function editEvent(event: EventDTO) {
             end: eventWithDates.end,
             color: eventWithDates.color,
         })
-        .where(eq(eventsTable.id, eventWithDates.id))
+        .where(
+            and(
+                eq(eventsTable.id, eventWithDates.id),
+                eq(eventsTable.user_id, eventWithDates.user_id)
+            )
+        )
         .returning();
 
     return result[0];
@@ -118,8 +125,28 @@ export async function getUserEvents(userId: string) {
     const events = await db
         .select()
         .from(eventsTable)
-        .where(eq(eventsTable.user_id, userId));
+        .where(
+            and(eq(eventsTable.user_id, userId), eq(eventsTable.deleted, false))
+        );
     return events;
+}
+
+export async function deleteEvent(eventId: number) {
+    const existingEvent = await db
+        .select()
+        .from(eventsTable)
+        .where(eq(eventsTable.id, eventId));
+
+    if (existingEvent.length === 0) {
+        throw new Error("Event not found");
+    }
+
+    const result = await db
+        .update(eventsTable)
+        .set({ deleted: true })
+        .where(eq(eventsTable.id, eventId))
+        .returning();
+    return result[0];
 }
 
 export async function getEventsByDate(userId: string, date: Date) {
@@ -151,10 +178,6 @@ export async function getEventsByDate(userId: string, date: Date) {
         )
     );
 
-    console.log(
-        `Query range: ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`
-    );
-
     // Find events that overlap with this UTC day
     const events = await db
         .select()
@@ -163,7 +186,8 @@ export async function getEventsByDate(userId: string, date: Date) {
             and(
                 eq(eventsTable.user_id, userId),
                 lte(eventsTable.start, endOfDay), // Event starts before end of day
-                gte(eventsTable.end, startOfDay) // Event ends after start of day
+                gte(eventsTable.end, startOfDay), // Event ends after start of day
+                eq(eventsTable.deleted, false) // Event is not deleted
             )
         );
 
