@@ -130,17 +130,24 @@ export async function getEventsByDate(userId: string, date: Date) {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Query to filter events within the day
+    // Query to filter events that overlap with the selected day
+    // (events that start before the end of the day AND end after the start of the day)
     const events = await db
         .select()
         .from(eventsTable)
         .where(
             and(
                 eq(eventsTable.user_id, userId),
-                gte(eventsTable.start, startOfDay),
-                lte(eventsTable.start, endOfDay)
+                lte(eventsTable.start, endOfDay),
+                gte(eventsTable.end, startOfDay)
             )
         );
 
-    return events;
+    // Format dates as ISO strings for consistent processing
+    return events.map((event) => ({
+        ...event,
+        start:
+            event.start instanceof Date ? event.start : new Date(event.start),
+        end: event.end instanceof Date ? event.end : new Date(event.end),
+    }));
 }

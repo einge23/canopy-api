@@ -6,7 +6,7 @@ import {
     getEventsByDate,
     getUserEvents,
 } from "../services/event-services.js";
-import type { EventDTO } from "../db/schema.js";
+import { serializeEvent, type EventDTO } from "../db/schema.js";
 import { clerkAuth } from "../middleware/clerk-auth.js";
 
 const eventRoutes = new Hono();
@@ -88,9 +88,13 @@ eventRoutes.get("/:user_id/:date", clerkAuth, async (c) => {
 
         if (!events) return c.json({ error: "Error getting user events" }, 404);
 
+        // Convert to serialized format for API response
         const safeEvents = events.map((event) => {
-            const eventDto: EventDTO = (({ deleted, ...rest }) => rest)(event);
-            return eventDto;
+            // Remove deleted field
+            const { deleted, ...rest } = event;
+
+            // Use your serialization helper
+            return serializeEvent(rest);
         });
 
         return c.json(safeEvents);
