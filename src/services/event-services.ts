@@ -123,31 +123,49 @@ export async function getUserEvents(userId: string) {
 }
 
 export async function getEventsByDate(userId: string, date: Date) {
-    // Create the start and end of the day
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    // Ensure we're working with a Date object
+    const queryDate = new Date(date);
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Create UTC start of day (00:00:00) and end of day (23:59:59)
+    const startOfDay = new Date(
+        Date.UTC(
+            queryDate.getFullYear(),
+            queryDate.getMonth(),
+            queryDate.getDate(),
+            0,
+            0,
+            0,
+            0
+        )
+    );
 
-    // Query to filter events that overlap with the selected day
-    // (events that start before the end of the day AND end after the start of the day)
+    const endOfDay = new Date(
+        Date.UTC(
+            queryDate.getFullYear(),
+            queryDate.getMonth(),
+            queryDate.getDate(),
+            23,
+            59,
+            59,
+            999
+        )
+    );
+
+    console.log(
+        `Query range: ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`
+    );
+
+    // Find events that overlap with this UTC day
     const events = await db
         .select()
         .from(eventsTable)
         .where(
             and(
                 eq(eventsTable.user_id, userId),
-                lte(eventsTable.start, endOfDay),
-                gte(eventsTable.end, startOfDay)
+                lte(eventsTable.start, endOfDay), // Event starts before end of day
+                gte(eventsTable.end, startOfDay) // Event ends after start of day
             )
         );
 
-    // Format dates as ISO strings for consistent processing
-    return events.map((event) => ({
-        ...event,
-        start:
-            event.start instanceof Date ? event.start : new Date(event.start),
-        end: event.end instanceof Date ? event.end : new Date(event.end),
-    }));
+    return events;
 }
