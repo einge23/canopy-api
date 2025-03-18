@@ -1,6 +1,6 @@
 import { eventsTable, type EventDTO } from "../db/schema.js";
 import { db } from "../index.js";
-import { and, or, eq, gte, lte, ne } from "drizzle-orm";
+import { and, or, eq, gte, lte, ne, asc } from "drizzle-orm";
 import type { CreateEventRequest } from "../types/create-event-request.js";
 
 export async function createEvent(event: CreateEventRequest) {
@@ -147,6 +147,30 @@ export async function deleteEvent(eventId: number) {
         .where(eq(eventsTable.id, eventId))
         .returning();
     return result[0];
+}
+
+export async function getEventsByMonth(
+    userId: string,
+    year: number,
+    month: number
+) {
+    const startOfMonth = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+    const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+
+    const events = await db
+        .select()
+        .from(eventsTable)
+        .where(
+            and(
+                eq(eventsTable.user_id, userId),
+                lte(eventsTable.start, endOfMonth),
+                gte(eventsTable.end, startOfMonth),
+                eq(eventsTable.deleted, false)
+            )
+        )
+        .orderBy(asc(eventsTable.start));
+
+    return events;
 }
 
 export async function getEventsByDate(userId: string, date: Date) {

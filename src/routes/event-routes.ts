@@ -5,6 +5,7 @@ import {
     deleteEvent,
     editEvent,
     getEventsByDate,
+    getEventsByMonth,
     getUserEvents,
 } from "../services/event-services.js";
 import { serializeEvent, type EventDTO } from "../db/schema.js";
@@ -78,6 +79,41 @@ eventRoutes.put("/edit", clerkAuth, async (c) => {
             },
             400
         );
+    }
+});
+
+eventRoutes.get("/:user_id/:year/:month", clerkAuth, async (c) => {
+    try {
+        const { user_id, year, month } = c.req.param();
+
+        // Validate inputs
+        const yearNum = parseInt(year);
+        const monthNum = parseInt(month);
+
+        if (
+            isNaN(yearNum) ||
+            isNaN(monthNum) ||
+            monthNum < 1 ||
+            monthNum > 12
+        ) {
+            return c.json({ error: "Invalid year or month parameters" }, 400);
+        }
+
+        const events = await getEventsByMonth(user_id, yearNum, monthNum);
+
+        if (!events)
+            return c.json({ error: "Error retrieving monthly events" }, 404);
+
+        // Convert to serialized format for API response
+        const safeEvents = events.map((event) => {
+            const { deleted, ...rest } = event;
+            return serializeEvent(rest);
+        });
+
+        return c.json(safeEvents);
+    } catch (error: any) {
+        console.error("Error fetching monthly events:", error);
+        return c.json({ error: error.message }, 500);
     }
 });
 
