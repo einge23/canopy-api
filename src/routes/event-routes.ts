@@ -82,7 +82,7 @@ eventRoutes.put("/edit", clerkAuth, async (c) => {
     }
 });
 
-eventRoutes.get("/:user_id/:year/:month", clerkAuth, async (c) => {
+eventRoutes.get("/monthly/:user_id/:year/:month", clerkAuth, async (c) => {
     try {
         const { user_id, year, month } = c.req.param();
 
@@ -117,7 +117,7 @@ eventRoutes.get("/:user_id/:year/:month", clerkAuth, async (c) => {
     }
 });
 
-eventRoutes.get("/:user_id/:date", clerkAuth, async (c) => {
+eventRoutes.get("/daily/:user_id/:date", clerkAuth, async (c) => {
     try {
         const { user_id, date } = c.req.param();
 
