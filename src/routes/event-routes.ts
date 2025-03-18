@@ -21,8 +21,6 @@ eventRoutes.post("/create", clerkAuth, async (c) => {
             !payload.name ||
             !payload.start ||
             !payload.end ||
-            !payload.location ||
-            !payload.description ||
             !payload.user_id ||
             !payload.color
         ) {
