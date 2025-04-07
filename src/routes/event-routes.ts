@@ -99,8 +99,9 @@ eventRoutes.get("/monthly/:user_id/:year/:month", clerkAuth, async (c) => {
 
         const events = await getEventsByMonth(user_id, yearNum, monthNum);
 
-        if (!events)
-            return c.json({ error: "Error retrieving monthly events" }, 404);
+        if (!events || events.length === 0) {
+            return new Response(null, { status: 204 });
+        }
 
         // Convert to serialized format for API response
         const safeEvents = events.map((event) => {
